@@ -1,4 +1,4 @@
 # Beat-System
-A beat system for unity.
+A beat (song analysis) system for unity.
 
 Code pending...
