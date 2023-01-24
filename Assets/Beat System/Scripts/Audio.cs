@@ -14,6 +14,7 @@ using Song;
 [RequireComponent(typeof(AudioListener))]
 
 public class Audio : MonoBehaviour {
+    /*
     // Enums
     public enum States {
         Stopped             = 1,
@@ -284,7 +285,7 @@ public class Audio : MonoBehaviour {
         return ac;
     }
 
-    /*float[] GenerateTone(float frequency, int duration){
+    //float[] GenerateTone(float frequency, int duration){
         float[] result = new float[duration];
         int vol = 1f;
 
@@ -295,7 +296,7 @@ public class Audio : MonoBehaviour {
         }
 
         return result;
-    }*/
+    }
 
     // Update
     void Update(){
@@ -311,5 +312,5 @@ public class Audio : MonoBehaviour {
     void Start(){
         Mixer = Resources.Load<UnityEngine.Audio.AudioMixerGroup>("Audio/Handling/Mixer");
         sources = new List<Audio.Source>();
-    }
+    }*/
 }

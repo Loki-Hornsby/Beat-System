@@ -23,12 +23,12 @@ public class SongTracker : MonoBehaviour{
     }
 
     void Update() {
-        if (Audio.Instance.GetState(0) == Audio.States.Playing){
+        /*if (Audio.Instance.GetState(0) == Audio.States.Playing){
             this.transform.position = new Vector3(
                 Mathf.Lerp(0f, Data.SongLength, (Audio.Instance.GetAudioSourceTime(0) / Data.SongLength)),
                 0f,
                 0f
             );
-        }
+        }*/
     }
 }

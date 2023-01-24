@@ -10,7 +10,7 @@ using System.Linq;
 using System;
 
 namespace Song {
-    public static class Analysis {
+    /*public static class Analysis {
         static void FinishedAnalysing(){
             Debug.Log("Analysis Finished");
             Data.SongAnalyzed = true;
@@ -42,6 +42,12 @@ namespace Song {
                     sum.Update(input[i]);
                     counter.Update(1);
 
+                    /// <summary>
+                    /// 
+                    /// </summary>
+                    /// <param name="="></param>
+                    /// <typeparam name="int"></typeparam>
+                    /// <returns></returns>
                     if (counter.t<int>() == Settings.Advanced.AverageSplit + offset.t<int>()){
                         for (int j = 0; j < Settings.Advanced.AverageSplit; j++){
                             result[counter.t<int>() - (j)] = (sum.t<float>() / Settings.Advanced.AverageSplit);
@@ -67,7 +73,7 @@ namespace Song {
                         result[i] = input[i];
 
                         if (i + 1 > Mathf.FloorToInt(interval)){
-                            result[i] = result[i] + input[i - Settings.Advanced.SampleDepth];
+                            //result[i] = result[i] + input[i - Settings.Advanced.SampleDepth];
                         }
                     }
 
@@ -392,5 +398,5 @@ namespace Song {
                 };
             }
         }
-    }
+    }*/
 }
