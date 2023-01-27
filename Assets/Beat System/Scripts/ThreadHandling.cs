@@ -11,40 +11,60 @@ using System;
 using System.Threading.Tasks;
 
 public static class ThreadHandling {
+    // Threading delegate and event
     public delegate void Threading();
     public static event Threading Finished;
 
-    static Queue<Action> tasks = new Queue<Action>();
+    // Queued tasks
+    static Queue<Action> queuedTasks = new Queue<Action>();
 
+    // Numbers
+    static int completed;
+    static int tasks;
+
+    /// <summary>
+    /// Queue a task (Action)
+    /// </summary>
     public static void QueueTask(Action action){
-        tasks.Enqueue(action);
+        if (completed == tasks) tasks = 0;
+        tasks++;
+        queuedTasks.Enqueue(action);
     }
 
+    /// <summary>
+    /// Execute all queued tasks
+    /// </summary>
     public static void ExecuteTasks(){
-        RunNextTask();
+        completed = 0;
+        LoopTaskExec();
     }
 
-    // Runs the next task queued in [tasks]
-    async static void RunNextTask(int timeout = 10){
-        // Timeout in ms
-        timeout = timeout * 1000;
+    /// <summary>
+    /// Run next queued task
+    /// </summary>
+    public async static void LoopTaskExec(){
+        // Get the first action in our tasks list by use of the Dequeue function
+        Action action = queuedTasks.Dequeue();
 
-        // Task creation
-        var task = Task.Run(tasks.Dequeue());
-        await task.ContinueWith(t => Debug.Log("TASK DONE"));
+        // Run the task and await its completion
+        await Task.Run(action).ContinueWith(
+            t => {
+                // Increment completed tasks counter
+                completed++;
 
-        // Timeout
-        if (await Task.WhenAny(task, Task.Delay(timeout)) == task) {
-            // Task completed without timing out
-            if (tasks.Count > 0){
-                RunNextTask();
-            } else {
-                // Invoke our finished condition
-                Finished?.Invoke(); 
+                // Log a message
+                Debug.Log("Task completed! (" + completed + " / " + tasks + ")");
+                
+                // Run next task
+                if (completed != tasks){
+                    LoopTaskExec();
+
+                // Invoke finish
+                } else {
+                    Finished?.Invoke();
+                }
             }
-        } else { 
-            // Task timed out
-            Debug.LogError("A timeout occurred in Analysis.cs");
-        }
+        );
     }
 }
+

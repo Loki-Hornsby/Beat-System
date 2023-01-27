@@ -7,11 +7,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using Analysis;
-
 public class SongSelect : MonoBehaviour {
     public AudioClip clip;
-    public Analyser analyser;
+    public Loki.Signal.Analysis.Analyser analyser;
 
     void Awake(){
         DontDestroyOnLoad(this.gameObject);

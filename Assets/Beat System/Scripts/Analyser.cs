@@ -9,8 +9,20 @@ using UnityEngine;
 using System.Linq;
 using System;
 
-namespace Analysis {
+namespace Loki.Signal.Analysis {
     public class Analyser : MonoBehaviour {
+        // Finished analysis event
+        public delegate void Analysis();
+        public event Analysis Finished;
+
+        /// <summary>
+        /// The song has finished being analysed for data
+        /// </summary>
+        void FinishedAnalysing(){
+            Debug.Log("Finished Analysis!");
+            Finished?.Invoke();
+        }
+
         /// <summary>
         /// Holds the settings for this analyser
         /// </summary>
@@ -105,15 +117,26 @@ namespace Analysis {
         /// <summary>
         /// Hold the data for this analyser
         /// </summary>
+        [Serializable]
         public class Data {
+            /// <summary>
+            /// Predefined generic data
+            /// </summary>
             public AudioClip Clip;          // The Song (AudioClip)
-            public bool Analyzed;           // Boolean value for wether the song data has finished analysing
             public float Length;            // Length of the song in seconds
             public float Frequency;         // Sample rate of the song; How many samples were taken per second when recording the song
-            public int Channels;            // Channels of the song (normally 2) // Bug: Something is wrong with the channels
+            public int Channels;            // Channels of the song (normally 2)
             public float Samples;           // Total amount of samples building up the song
             public float Peak;              // Largest item of data
-            public float[] RawData;         // Raw data of the song
+            public float[] RawData;         // Raw PCM data of the song
+
+            /// <summary>
+            /// Output data
+            /// </summary>
+            public volatile float[][][] O_General;
+            public volatile float[][] O_Wave;
+            public volatile float[] O_Volume;
+            public volatile float[] O_Frequency;
 
             /// <summary>
             /// Setup our data
@@ -121,7 +144,6 @@ namespace Analysis {
             public Data (AudioClip _song) {
                 // Pre Defined
                 Clip = _song;   
-                Analyzed = false;
                 Channels = Clip.channels;          
                 Frequency = Clip.frequency;         
                 Samples = Clip.samples;   
@@ -133,16 +155,6 @@ namespace Analysis {
 
                 Peak = RawData.Max();
             }
-
-            /// <summary>
-            /// The song has finished being analysed for data
-            /// </summary>
-            public void FinishedAnalysing(){
-                // Set analysed to true
-                Analyzed = true;
-
-                Debug.Log("Finished Analysing function triggered!");
-            }
         }
 
         public Analyser.Data data;
@@ -153,7 +165,7 @@ namespace Analysis {
         void Awake(){
             DontDestroyOnLoad(this.gameObject);
         }
-
+        
         /// <summary>
         /// Analyse a song
         /// </summary>
@@ -161,41 +173,58 @@ namespace Analysis {
             // Creates the data for our analyser
             data = new Analyser.Data(song);
 
-            // Performs analysis using our settings and data
-            Implementation.PerformAnalysis(ref settings, ref data);
+            // Subscribe the finished event to the function of FinishedAnalysing
+            ThreadHandling.Finished += FinishedAnalysing;
+
+            // Queue tasks to our Thread Handling class
+
+            // General
+            ThreadHandling.QueueTask(
+                Implementation.General.CreateArray(
+                    data.O_General,
+                    data.RawData,
+                    (int) data.Samples, 
+                    (int) settings.LowestHeardFrequency, 
+                    (int) settings.SampleDepth 
+                )
+            );
+
+            // Wave
+            ThreadHandling.QueueTask(
+                Implementation.Wave.CreateArray(
+                    data.O_Wave, 
+                    data.O_General
+                )
+            );
+
+            // Volume
+            ThreadHandling.QueueTask(
+                Implementation.Volume.CreateArray(
+                    data.O_Volume, 
+                    data.O_Wave,
+                    (int) settings.SampleDepth,
+                    data.Peak
+                )
+            );
+
+            // Frequency
+            ThreadHandling.QueueTask(
+                Implementation.Frequency.CreateArray(
+                    data.O_Frequency, 
+                    data.O_Wave,
+                    (int) settings.LowestHeardFrequency
+                )
+            );
+
+            // Execute all currently queued tasks
+            ThreadHandling.ExecuteTasks();
         }
 
         /// <summary>
         /// The implementation of our audio analysis system
         /// </summary>
         public static class Implementation {
-            /// <summary>
-            /// Queues all tasks needed and then executes them
-            /// </summary>
-            public static void PerformAnalysis(ref Analyser.Settings settings, ref Analyser.Data data){
-                // Subscribe the finished condition to function of FinishedAnalysing
-                ThreadHandling.Finished += data.FinishedAnalysing;
-
-                // Queue tasks to our Thread Handling class
-                ThreadHandling.QueueTask(
-                    Implementation.General.CreateArray(
-                        (int) data.Samples, 
-                        (int) settings.LowestHeardFrequency, 
-                        (int) settings.SampleDepth, 
-                        data.RawData
-                    )
-                );
-
-                // ThreadHandling.QueueTask(Implementation.Wave.CreateArray(settings, data));
-                // ThreadHandling.QueueTask(Implementation.Frequency.CreateArray(settings, data));
-                // ThreadHandling.QueueTask(Implementation.Volume.CreateArray(settings, data));
-    
-                // Execute all currently queued tasks
-                ThreadHandling.ExecuteTasks();
-            }
-            
-            /*
-            public static class Average {
+            /*public static class Average {
                 // Bug: ~1623 index out of range
                 // Take an average of the data given an index
                 public static float[] Take(float[] input){
@@ -247,13 +276,122 @@ namespace Analysis {
                         return result;
                     }
                 }
-            }
-            
-            public static class Wave {
-                public static float[][] Array;
+            }*/
 
+            /// <summary>
+            /// Requires Array of <PCM>
+            /// </summary>
+            public static class General {
+                // Get level of detail
+                /*public static float GetLOD(){
+                    return Analysis.Frequency.Array.Length / 
+                        (
+                            Data.SongSamples / (
+                                Settings.Advanced.PossibleLowestHeardFrequencies.Min() * Settings.Advanced.PossibleSampleDepths.Min()
+                            )
+                        );
+                }
+
+                // Get expected data points
+                public static float GetEXP(){
+                    const float x = 2048f;
+                    const float y = 44100;
+
+                    float x2 = Settings.Advanced.SampleDepth / x;
+                    float y2 = Data.SongFrequency / y;
+
+                    Debug.Log(x2);
+                    Debug.Log(y2);
+                    Debug.Log(Data.SongLength);
+
+                    // (1 / 0.5) * 10
+                    // (_ / _) * Data.SongLength = 20
+
+                    return (y2 / x2) * Data.SongLength;
+                }*/
+
+                /// <summary>
+                /// Scans through the array and splits the raw data into arrays with size of SampleDepth
+                /// </summary>
+                public static Action CreateArray(float[][][] Output, float[] Input, int Samples, int SampleDepth, int LowestHeardFrequency){
+                    return () => {
+
+                    // Counters
+                    int WaveCounter = 0;
+                    int SampleCounter = 0; 
+                    int DataCounter = 0;
+
+                    // End of loop
+                    bool end = false;
+
+                    // Setup Array structure
+                    Output = new float[Mathf.FloorToInt(Samples / (LowestHeardFrequency * SampleDepth))][][];
+                    Output[WaveCounter] = new float[LowestHeardFrequency][];
+                    Output[WaveCounter][SampleCounter] = new float[SampleDepth];
+
+                    // 1 Wave = (HearingRange) samples
+                    // 1 sample = (SampleDepth) data pieces
+
+                    // (ScannedData)  ScannedData = [Wave, Wave, Wave, Wave....]
+                    // (ScannedData[0])  Wave = [Sample, Sample, Sample, Sample, Sample]
+                    // (ScannedData[0][0])  Sample = [1, 45, 2, 2, 21, 21, 21, 32, 4, 543, 43, 4, 23, 23, 2, 3....]
+
+                    // ScannedData = [
+                    //      Wave [
+                    //          Sample [
+                    //              1, 4, 2, 5
+                    //          ]
+                    //      ]
+                    //  ]
+
+                    // Loop through all of song data
+                    for (int i = 0; i < Samples; i++){
+                        // Store an item every loop
+                        if (!end) Output[WaveCounter][SampleCounter][DataCounter] = Mathf.Abs(Input[i]); // Because audio ranges from -1 to 1
+
+                        // Move to next data slot
+                        DataCounter++;
+
+                        // If the data slot position is over the sample depth limit
+                        if (DataCounter + 1 > SampleDepth){ // (+1 to account for arrays starting at index 0)
+                            // Move to new sample array
+                            SampleCounter++;
+                            
+                            // If the sample slot position is over the wave limit
+                            if (SampleCounter + 1 > LowestHeardFrequency){ // (+1 to account for arrays starting at index 0)
+                                // Move to new wave array
+                                WaveCounter++;
+
+                                // End condition
+                                if (WaveCounter + 1 > Samples / (LowestHeardFrequency * SampleDepth)){
+                                    end = true;
+                                }
+                                
+                                // Create new wave array
+                                if (!end) Output[WaveCounter] = new float[LowestHeardFrequency][];
+                                
+                                // Reset Sample Counter
+                                SampleCounter = 0;
+                            } 
+                            
+                            // Create new sample array
+                            if (!end) Output[WaveCounter][SampleCounter] = new float[SampleDepth];
+
+                            // Reset Data Counter
+                            DataCounter = 0;
+                        }
+                    }
+
+                    };
+                }
+            }
+
+            /// <summary>
+            /// Requires Array of <General>
+            /// </summary>
+            public static class Wave {
                 // Get a Wave
-                public static float[] Get(float[][] input){
+                static float[] Get(float[][] input){
                     float[] result = new float[input.Length * input[0].Length];
                     int height = input.Length;
                     int width = input[0].Length;
@@ -268,30 +406,65 @@ namespace Analysis {
                 }
 
                 // Create an array of waves
-                public static Action CreateArray(Analyser.Settings settings, Analyser.Data data){
+                public static Action CreateArray(float[][] Output, float[][][] Input){
                     return () => {
 
-                    float[][] waves = new float[Analysis.General.Array.Length][];
+                    Output = new float[Input.Length][];
 
-                    for (int i = 0; i < Analysis.General.Array.Length; i++){
-                        waves[i] = Get(Analysis.General.Array[i]); // Convert to 1d array
+                    for (int i = 0; i < Input.Length; i++){
+                        Output[i] = Get(Input[i]); // Convert to 1d array
                     }
-
-                    Array = waves;
 
                     };
                 }
             }
 
-            public static class Frequency { // Also known as Hz
-                public static float[] Array;
-                public static List<Analysis.Frequency.Note> Notes;
-                public static float ArrayAverage;
+            /// <summary>
+            /// Requires Array of <Wave>
+            /// </summary>
+            public static class Volume { // Also known as magnitude
+                /// <summary>
+                /// Convert input data to simulated volume
+                /// </summary>
+                static float Get(float Sum, float SampleDepth, float Peak){
+                    // Grab an average of the mean of the sum and sqrt the sum to get an RMS value
+                    float Avg = Mathf.Sqrt(Sum) / SampleDepth;
+                    // use the song's peak to calculate an amplitude
+                    float amplitude = Avg / Peak;
+                    // Multiply to get percentage
+                    float percentage = (amplitude * SampleDepth) * 100f;
+                    // Get it into a DB - divide by 20f
+                    float result = percentage / 20f;
 
+                    return result;
+                }
+
+                /// <summary>
+                /// Create an array of volumes
+                /// </summary>
+                public static Action CreateArray(float[] Output, float[][] Input, float SampleDepth, float Peak){
+                    return () => {
+                    
+                    // Set Data
+                    Output = new float[Input.Length];
+
+                    for (int i = 0; i < Output.Length; i++){
+                        // Get Data
+                        Output[i] = Get(Input[i].Sum(), SampleDepth, Peak);
+                    }
+
+                    };
+                }
+            }
+
+            /// <summary>
+            /// Requires Array of <Wave>
+            /// </summary>
+            public static class Frequency { // Also known as Hz
                 // Get frequency from a raw wave
-                public static float Get(float[] wave){
-                    Unitilities.Counter Waves = new Unitilities.Counter();
-                    Unitilities.Counter QuarterWavesFound = new Unitilities.Counter();
+                static float Get(float[] wave, float LowestHeardFrequency){
+                    int Waves = 0;
+                    int QuarterWavesFound = 0;
                     
                     for (int i = 0; i < wave.Length; i++){
                         if (i < wave.Length - 1){
@@ -325,32 +498,30 @@ namespace Analysis {
                     // Calculate final frequency F = T/1 (Inverse frequency seems to be F = 1/T and it converts silence to the highest possible frequency?)
                     float frequency = (
                         (
-                            Waves.t<float>() + (
+                            Waves + (
                                 (
-                                    QuarterWavesFound.t<float>() + 1f
+                                    QuarterWavesFound + 1f
                                 ) / 4f
                             )
-                        ) / (float) Settings.Advanced.LowestHeardFrequency
+                        ) / (float) LowestHeardFrequency
                     ) * 1000f;
                     
                     return frequency;
                 }
 
                 // Create an array of frequencies
-                public static Action CreateArray(Analyser.Settings settings, Analyser.Data data){
+                public static Action CreateArray(float[] Output, float[][] Input, float LowestHeardFrequency){      
                     return () => {
                     
                     // Frequency
-                    float[] frequencies = new float[Analysis.Wave.Array.Length];
-                    Notes = new List<Analysis.Frequency.Note>();
+                    Output = new float[Input.Length];
+                    //Notes = new List<Analysis.Frequency.Note>();
 
-                    for (int i = 0; i < Analysis.Wave.Array.Length; i++){
-                        frequencies[i] = Get(Analysis.Wave.Array[i]);
+                    for (int i = 0; i < Input.Length; i++){
+                        Output[i] = Get(Input[i], LowestHeardFrequency);
                     }
 
-                    Array = frequencies;
-                    ArrayAverage = Array.Sum() / Array.Length;
-
+                    /*
                     // Averaging
                     float[] arr;
 
@@ -376,7 +547,7 @@ namespace Analysis {
 
                     for (int i = 0; i < ToComb.Length; i++){
                         Notes[i].pitch = Combed[i];
-                    }
+                    }*/
 
                     };
                 }
@@ -387,7 +558,7 @@ namespace Analysis {
                 // https://dsp.stackexchange.com/questions/84212/performing-onset-detection-in-audio-without-the-use-of-an-fft?noredirect=1#comment177715_84212
                 // https://www.nti-audio.com/en/support/know-how/fast-fourier-transform-fft
                 
-                public class Note {
+                /*public class Note {
                     public float pitch;
                     public float duration;
                     public int attackPos;
@@ -416,156 +587,7 @@ namespace Analysis {
 
                         return this;
                     }
-                }
-            }
-
-            public static class Volume { // Also known as magnitude
-                public static float[] Array;
-                public static float ArrayAverage;
-
-                // Convert input data to simulated volume
-                public static float Get(float Sum, float sampleDepth){
-                    // Grab an average of the mean of the sum and sqrt the sum to get an RMS value
-                    float Avg = Mathf.Sqrt(Sum) / sampleDepth;
-                    // use the song's peak to calculate an amplitude
-                    float amplitude = Avg / Data.SongPeak;
-                    // Multiply to get percentage
-                    float percentage = (amplitude * sampleDepth) * 100f;
-                    // Get it into a DB - divide by 20f
-                    float result = percentage / 20f;
-
-                    return result;
-                }
-
-                // Create an array of volumes
-                public static Action CreateArray(Analyser.Settings settings, Analyser.Data data){
-                    return () => {
-                    
-                    // Set Data
-                    float[] volumeArr = new float[Analysis.Wave.Array.Length];
-
-                    for (int i = 0; i < volumeArr.Length; i++){
-                        // Get Data
-                        volumeArr[i] = Get(Analysis.Wave.Array[i].Sum());
-                    }
-
-                    Array = volumeArr;
-                    ArrayAverage = Array.Sum() / Array.Length;
-
-                    };
-                }
-            }*/
-
-            public static class General {
-                public static float[][][] Array;
-
-                // Get level of detail
-                /*public static float GetLOD(){
-                    return Analysis.Frequency.Array.Length / 
-                        (
-                            Data.SongSamples / (
-                                Settings.Advanced.PossibleLowestHeardFrequencies.Min() * Settings.Advanced.PossibleSampleDepths.Min()
-                            )
-                        );
-                }
-
-                // Get expected data points
-                public static float GetEXP(){
-                    const float x = 2048f;
-                    const float y = 44100;
-
-                    float x2 = Settings.Advanced.SampleDepth / x;
-                    float y2 = Data.SongFrequency / y;
-
-                    Debug.Log(x2);
-                    Debug.Log(y2);
-                    Debug.Log(Data.SongLength);
-
-                    // (1 / 0.5) * 10
-                    // (_ / _) * Data.SongLength = 20
-
-                    return (y2 / x2) * Data.SongLength;
                 }*/
-
-                /// <summary>
-                /// Scans through the array and splits the raw data into arrays with size of SampleDepth
-                /// </summary>
-                public static Action CreateArray(int Samples, int LowestHeardFrequency, int SampleDepth, float[] RawData){
-                    return () => {
-
-                    // Counters
-                    int WaveCounter = 0;
-                    int SampleCounter = 0; 
-                    int DataCounter = 0;
-
-                    // End of loop
-                    bool end = false;
-
-                    // Setup Array
-                    float[][][] ScannedData = new float[
-                        Mathf.FloorToInt(Samples / (LowestHeardFrequency * SampleDepth))][][];
-                    
-                    if (WaveCounter < ScannedData.Length){
-                        ScannedData[WaveCounter] = new float[LowestHeardFrequency][];
-                        ScannedData[WaveCounter][SampleCounter] = new float[SampleDepth];
-
-                        // 1 Wave = (HearingRange) samples
-                        // 1 sample = (SampleDepth) data pieces
-
-                        // (ScannedData)  ScannedData = [Wave, Wave, Wave, Wave....]
-                        // (ScannedData[0])  Wave = [Sample, Sample, Sample, Sample, Sample]
-                        // (ScannedData[0][0])  Sample = [1, 45, 2, 2, 21, 21, 21, 32, 4, 543, 43, 4, 23, 23, 2, 3....]
-
-                        // ScannedData = [
-                        //      Wave [
-                        //          Sample [
-                        //              1, 4, 2, 5
-                        //          ]
-                        //      ]
-                        //  ]
-
-                        // Loop through all of song data
-                        for (int i = 0; i < Samples; i++){
-                            // Store an item every loop
-                            if (!end) ScannedData[WaveCounter][SampleCounter][DataCounter] = Mathf.Abs(RawData[i]); // Because audio ranges from -1 to 1
-
-                            // Move to next data slot
-                            DataCounter++;
-
-                            // If the data slot position is over the sample depth limit
-                            if (DataCounter + 1 > SampleDepth){ // (+1 to account for arrays starting at index 0)
-                                // Move to new sample array
-                                SampleCounter++;
-                                
-                                // If the sample slot position is over the wave limit
-                                if (SampleCounter + 1 > LowestHeardFrequency){ // (+1 to account for arrays starting at index 0)
-                                    // Move to new wave array
-                                    WaveCounter++;
-            
-                                    if (WaveCounter + 1 > Samples / (LowestHeardFrequency * SampleDepth)){
-                                        end = true;
-                                    }
-                                    
-                                    // Create new wave array
-                                    if (!end) ScannedData[WaveCounter] = new float[LowestHeardFrequency][];
-                                    
-                                    // Reset Sample Counter
-                                    SampleCounter = 0;
-                                } 
-                                
-                                // Create new sample array
-                                if (!end) ScannedData[WaveCounter][SampleCounter] = new float[SampleDepth];
-
-                                // Reset Data Counter
-                                DataCounter = 0;
-                            }
-                        }
-                    }
-
-                    Array = ScannedData;
-
-                    };
-                }
             }
         }
     }
