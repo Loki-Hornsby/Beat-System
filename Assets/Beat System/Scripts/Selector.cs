@@ -18,12 +18,23 @@ namespace Loki.Signal.Analysis {
         public class AnalysisItem {
             // Our selected analyser
             public Analyser analyser;
-            // Audio clips to analyse
-            [Space(10)]
-            public AudioClip[] clips;
+
+            // Our input data
+            [Serializable] public class InputData {
+                // Audio clips to analyse
+                public AudioClip clip;
+
+                // Filters to apply
+                public Analyser.Filter FrequencyFilter;
+                public Analyser.Filter VolumeFilter;
+                public Analyser.Filter PitchFilter;
+            }
+
+            public InputData[] input;
+
             // Events we want to trigger after analysis has finished
-            [Space(10)]
             public UnityEvent<Analyser.Data[]> use;
+            
             // Returned data from analyser
             [System.NonSerialized] public Analyser.Data[] data;
 
@@ -36,12 +47,17 @@ namespace Loki.Signal.Analysis {
                     use = new UnityEvent<Analyser.Data[]>();
 
                 // Initialize our data array
-                data = new Analyser.Data[clips.Length];
+                data = new Analyser.Data[input.Length];
 
                 // Loop through each clip
-                for (int i = 0; i < clips.Length; i++){
+                for (int i = 0; i < input.Length; i++){
                     // Assign a task to analyse each clip with the selected analyser
-                    data[i] = await analyser.Analyse(clips[i]);
+                    data[i] = await analyser.Analyse(
+                        input[i].clip, 
+                        input[i].FrequencyFilter,
+                        input[i].VolumeFilter,
+                        input[i].PitchFilter
+                    );
                 }
 
                 // Invoke our method after analysis is complete

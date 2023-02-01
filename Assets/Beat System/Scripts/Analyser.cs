@@ -63,81 +63,37 @@ namespace Loki.Signal.Analysis {
 
             // ------------------- FFT Window ------------------- \\
             [Header("FFT")]
-            public FFTWindow fftWindow;
-
-            // ------------------- Averaging ------------------- \\
-            public enum PossibleAverageSplits {
-                A = 0,
-                B = 2,
-                C = 4,
-                D = 6,
-                E = 8,
-                F = 10,
-                G = 12,
-                H = 14,
-                I = 16
-            };
-
-            [Header("Averaging")]
-            public PossibleAverageSplits AverageSplit;
-            public bool TakeAverage;  
-
-            // ------------------- Combing ------------------- \\
-            [Header("Combing")]
-            public bool Comb;  
+            public FFTWindow fftWindow; 
         }
 
         public Analyser.Settings settings;
 
         /// <summary>
-        /// Calculated data
+        /// A single filter
         /// </summary>
-        public class Data {
-            /// <summary>
-            /// Predefined generic data
-            /// </summary>
-            public AudioClip Clip;          // The Song (AudioClip)
-            public float Length;            // Length of the song in seconds
-            public float Frequency;         // Sample rate of the song; How many samples were taken per second when recording the song
-            public int Channels;            // Channels of the song (normally 2)
-            public float Samples;           // Total amount of samples building up the song
-            public float Peak;              // Largest item of data
-            public float[] RawData;         // Raw PCM data of the song
+        [Serializable] public class Filter {
+            // Averaging
+            public enum PossibleAverageSplits {
+                _0 = 0,
+                _2 = 2,
+                _4 = 4,
+                _6 = 6,
+                _8 = 8,
+                _10 = 10,
+                _12 = 12,
+                _14 = 14,
+                _16 = 16
+            };
 
-            /// <summary>
-            /// Output data
-            /// </summary>
-            public float[][][] O_General;
-            public float[][] O_Wave;
-            public Notes.Note[] O_Notes;
+            public PossibleAverageSplits AverageSplit; 
 
-            /// <summary>
-            /// Setup our data
-            /// </summary>
-            public Data (AudioClip _song) {
-                // Pre Defined
-                Clip = _song;   
-                Channels = Clip.channels;          
-                Frequency = Clip.frequency;         
-                Samples = Clip.samples;   
-                Length = Clip.length;
+            // Range
+            public float range;
 
-                // Gets
-                RawData = new float[Mathf.FloorToInt(Samples * Channels)]; 
-                Clip.GetData(RawData, 0);
-
-                Peak = RawData.Max();
-            }
-        }
-
-        /// <summary>
-        /// Filters for the data
-        /// </summary>
-        public class Filters {
             /// <summary>
             /// Applies a "Comb" filter to our data
             /// </summary>
-            public void Comb(ref float[] input, float ms, float Frequency, int SampleDepth){
+            void Comb(ref float[] input, float ms, float Frequency, int SampleDepth){
                 // Define our interval ((Sample Rate (usually 44100) / 1000) * ms)
                 float interval = (Frequency / 1000f) * ms;
 
@@ -154,35 +110,124 @@ namespace Loki.Signal.Analysis {
             /// <summary>
             /// Gets an average of our data
             /// </summary>
-            /*public float[] TakeAverage(float[] input){
-                float[] result = new float[input.Length];
+            void TakeAverage(ref float[] input, float AverageSplit){
+                // Counters
+                int offset = 0;
+                int counter = 0;
+                float sum = 0f; 
 
-                Unitilities.Counter offset = new Unitilities.Counter();
-                Unitilities.Counter counter = new Unitilities.Counter();
-                Unitilities.Counter sum = new Unitilities.Counter();
-
+                // Loop through our input array
                 for (int i = 0; i < input.Length; i++){
-                    sum.Update(input[i]);
+                    // Add the current item to our sum float
+                    sum += input[i];
+
+                    // Increment our counter
                     counter++;
 
-                    /// <summary>
-                    /// 
-                    /// </summary>
-                    /// <param name="="></param>
-                    /// <typeparam name="int"></typeparam>
-                    /// <returns></returns>
-                    if (counter == settings.AverageSplit + offset){
-                        for (int j = 0; j < settings.AverageSplit; j++){
-                            result[counter - (j)] = (sum.t<float>() / settings.AverageSplit);
+                    // If our counter is equal to our average split + our offset
+                    if (counter == AverageSplit + offset){
+                        // Create a for loop the size of our average split variable
+                        for (int j = 0; j < AverageSplit; j++){
+                            // Change the input (located at our counters current position - our j index) 
+                                // to our sum divided by our average split
+                            input[counter - (j)] = (sum / AverageSplit);
                         }
                         
+                        // Reset the sum
                         sum = 0f;
-                        offset.Set(counter);
+
+                        // Apply our offset
+                        offset = counter;
                     }
                 }
+            }
 
-                return result;
-            }*/
+            /// <summary>
+            /// Squish our input into a range
+            /// </summary>
+            void FitRange(ref float[] input, float range){
+                // Get the largest value in the data
+                float max = input.Max();
+
+                // Loop through each input
+                for (int i = 0; i < input.Length; i++){
+                    // Change the currently indexed input to itself divided by the largest input multiplied by range
+                    input[i] = (input[i] / max) * range;
+                }
+            }
+
+            /// <summary>
+            /// Apply our filter
+            /// </summary>
+            public void Apply(out float[] arr, float[] input){
+                // Initialize our array
+                arr = input;
+
+                /*
+                // Apply the comb filter to them using input settings
+                if (comb) Comb (
+                    ref arr,
+                    10f,
+                    data.Frequency,
+                    (int) settings.SampleDepth
+                );
+                */
+
+                // Take an average of our generated frequency array
+                if ((int) AverageSplit > 0) TakeAverage(
+                    ref arr, 
+                    (int) AverageSplit
+                );
+
+                // Put our data into a specific range
+                if (range > 0f) FitRange(
+                    ref arr, 
+                    range
+                );
+            }
+        }
+
+        /// <summary>
+        /// Contains all our data
+        /// </summary>
+        public class Data {
+            // Output data
+            public float[][][] O_General;
+            public float[][] O_Wave;
+            public Notes.Note[] O_Notes;
+
+            // Generic data
+            public float[] frequencies;
+            public float[] volumes;
+            public float[] pitches;
+
+            // Predefined generic data
+            public AudioClip Clip;          // The Song (AudioClip)
+            public float Length;            // Length of the song in seconds
+            public float Frequency;         // Sample rate of the song; How many samples were taken per second when recording the song
+            public int Channels;            // Channels of the song (normally 2)
+            public float Samples;           // Total amount of samples building up the song
+            public float Peak;              // Largest item of data
+            public float[] RawData;         // Raw PCM data of the song
+
+            /// <summary>
+            /// Setup our data
+            /// </summary>
+            public Data (AudioClip _song) {
+                // Pre Defined
+                Clip = _song;   
+                Channels = Clip.channels;          
+                Frequency = Clip.frequency;         
+                Samples = Clip.samples;   
+                Length = Clip.length;
+
+                // Assign our PCM data
+                RawData = new float[Mathf.FloorToInt(Samples * Channels)]; 
+                Clip.GetData(RawData, 0);
+
+                // Get the peak from our PCM data
+                Peak = RawData.Max();
+            }
         }
 
         /// <summary>
@@ -456,27 +501,19 @@ namespace Loki.Signal.Analysis {
                     arr = Array;
                 }*/
             }
-        
-        }
-        
-        /// <summary>
-        /// Startup
-        /// </summary>
-        void Awake(){
-            //DontDestroyOnLoad(this.gameObject);
         }
         
         /// <summary>
         /// Analyse a song
         /// </summary>
-        public async Task<Data> Analyse(AudioClip song){
+        public async Task<Data> Analyse(AudioClip song, Filter frequency_filter, Filter volume_filter, Filter pitch_filter){
             // Creates the data for our analyser
             Data data = new Data(
                 song
             );
 
             // Awaits a new task
-            return await Task<Data>.Factory.StartNew(() => 
+            return await Task.Factory.StartNew(() => 
                 {
                     Debug.LogWarning("Analyser.cs: Copyright 2022, Loki Alexander Button Hornsby (Loki Hornsby), All rights reserved. Licensed under the BSD 3-Clause 'New' or 'Revised' License");
 
@@ -504,45 +541,12 @@ namespace Loki.Signal.Analysis {
                         (int) settings.LowestHeardFrequency
                     );
 
-                    /*
-                    // Combing
-                    Filters filters = new Filters();
+                    // Apply filters
+                    frequency_filter.Apply(out data.frequencies, data.O_Notes.Select(x => x.frequency).ToArray());
+                    volume_filter.Apply(out data.volumes, data.O_Notes.Select(x => x.volume).ToArray());
+                    pitch_filter.Apply(out data.pitches, data.O_Notes.Select(x => x.pitch).ToArray());
 
-                    if (settings.Comb) solution.QueueTask(
-                        () => {
-                            Debug.Log("Comb!");
-
-                            // Select all of our pitches
-                            IEnumerable<float> pitches = data.O_Notes.Select(x => x.pitch);
-
-                            // Convert them to an array
-                            float[] arr = pitches.ToArray();
-
-                            // Apply the comb filter to them using input settings
-                            filters.Comb (
-                                ref arr,
-                                10f,
-                                data.Frequency,
-                                (int) settings.SampleDepth
-                            );
-
-                            // Reassign our pitches (Will this result in anything?)
-                            pitches = arr;
-                        }
-                    );
-
-                    // Averaging
-                    if (settings.TakeAverage) solution.QueueTask(
-                        () => {
-                            Debug.Log("Average!");
-                        }
-                    );
-                    */
-
-                    // Execute all currently queued tasks
-                    //solution.ExecuteTasks();
-
-                    // Return our data once this task is finished
+                    // Return our data
                     return data;
                 }
             );

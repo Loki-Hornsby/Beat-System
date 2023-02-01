@@ -12,14 +12,14 @@ using System;
 using Loki.Signal.Analysis;
 
 public class Generator : MonoBehaviour {
-    public enum Channels {
+    public enum Modes {
         Frequency,
         Volume,
         Pitch
     }
-    
+
     [Header("Configuration")]
-    public Channels channel;
+    public Modes mode;
     public int DivScale;
     public GameObject prefab;
 
@@ -27,26 +27,31 @@ public class Generator : MonoBehaviour {
     /// Generate our items using our settings
     /// </summary>
     public void Generate(Analyser.Data[] data){
-        // 
+        // Loop through each data piece
         foreach (var data_piece in data){
-            for (int i = 0; i < data_piece.O_Notes.Length; i++){
-                Analyser.Notes.Note note = data_piece.O_Notes[i];
+            // Initialize our array
+            float[] arr = new float[data_piece.O_Notes.Length];
 
-                float val = 0f;
+            // Select our array
+            switch (mode){
+                case Modes.Frequency:
+                    arr = data_piece.frequencies;
+                    break;
+                case Modes.Volume:
+                    arr = data_piece.volumes;
+                    break;
+                case Modes.Pitch:
+                    arr = data_piece.pitches;
+                    break;
+            }
 
-                switch (channel){
-                    case Channels.Frequency:
-                        val = note.frequency;
-                        break;
-                    case Channels.Volume:
-                        val = note.volume;
-                        break;
-                    case Channels.Pitch:
-                        val = note.pitch;
-                        break;
-                }
+            // Loop through every item from our filters result
+            for (int i = 0; i < data_piece.frequencies.Length; i++){
+                // Create an object {x: index, y: value}
+                GameObject Obj = Instantiate(prefab, new Vector3(i, arr[i], 0f), Quaternion.identity);
 
-                Instantiate(prefab, new Vector3(i, val, 0f), Quaternion.identity);
+                // Parent the object to this object
+                Obj.transform.parent = this.transform;
             }
         }
         
