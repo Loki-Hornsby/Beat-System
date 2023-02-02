@@ -33,10 +33,7 @@ namespace Loki.Signal.Analysis {
             public InputData[] input;
 
             // Events we want to trigger after analysis has finished
-            public UnityEvent<Analyser.Data[]> use;
-            
-            // Returned data from analyser
-            [System.NonSerialized] public Analyser.Data[] data;
+            public UnityEvent<Analyser.Data> use;
 
             /// <summary>
             /// Constructor
@@ -44,24 +41,21 @@ namespace Loki.Signal.Analysis {
             public async void PerformAnalysis(){
                 // Initialize unity event
                 if (use == null)
-                    use = new UnityEvent<Analyser.Data[]>();
-
-                // Initialize our data array
-                data = new Analyser.Data[input.Length];
+                    use = new UnityEvent<Analyser.Data>();
 
                 // Loop through each clip
                 for (int i = 0; i < input.Length; i++){
                     // Assign a task to analyse each clip with the selected analyser
-                    data[i] = await analyser.Analyse(
+                    Analyser.Data data = await analyser.Analyse(
                         input[i].clip, 
                         input[i].FrequencyFilter,
                         input[i].VolumeFilter,
                         input[i].PitchFilter
                     );
-                }
 
-                // Invoke our method after analysis is complete
-                use.Invoke(data);
+                    // Invoke our method after analysis is complete
+                    use.Invoke(data);
+                }
             }
         }
 

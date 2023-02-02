@@ -11,8 +11,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Loki.Signal.Analysis;
-
 namespace Loki.Signal.Analysis {
     public class Analyser : MonoBehaviour {
         /// <summary>
@@ -43,6 +41,7 @@ namespace Loki.Signal.Analysis {
 
             // ------------------- Hearing ------------------- \\
             public enum PossibleLowestHeardFrequencies {
+                _15 = 15,
                 _20 = 20,
                 _25 = 25,
                 _30 = 30,
@@ -200,6 +199,7 @@ namespace Loki.Signal.Analysis {
             public float[] frequencies;
             public float[] volumes;
             public float[] pitches;
+            public bool[] onsets;
 
             // Predefined generic data
             public AudioClip Clip;          // The Song (AudioClip)
@@ -388,9 +388,7 @@ namespace Loki.Signal.Analysis {
                 public float pitch;
                 public float frequency;
                 public float volume; // Also known as magnitude
-                // public float duration;
-                // public int attackPos;
-                // public int onsetPos;
+                public bool onset;
 
                 /// <summary>
                 /// Get the pitch from a frequency
@@ -489,17 +487,12 @@ namespace Loki.Signal.Analysis {
                 for (int i = 0; i < Output.Length; i++){
                     // Get our data using input settings
                     Output[i] = new Notes.Note(Input[i], SampleDepth, Peak, LowestHeardFrequency);
+
+                    // Apply onsets
+                    if (i > 0){
+                        Output[i].onset = (Output[i].pitch > Output[i - 1].pitch);
+                    }
                 }
-
-                /*
-                // Averaging
-                float[] arr;
-
-                if (Settings.Advanced.AverageSplit > 0){
-                    arr = Average.Take(Array);
-                } else {
-                    arr = Array;
-                }*/
             }
         }
         
@@ -541,10 +534,17 @@ namespace Loki.Signal.Analysis {
                         (int) settings.LowestHeardFrequency
                     );
 
-                    // Apply filters
+                    // Apply frequency filter
                     frequency_filter.Apply(out data.frequencies, data.O_Notes.Select(x => x.frequency).ToArray());
+
+                    // Apply volume filter
                     volume_filter.Apply(out data.volumes, data.O_Notes.Select(x => x.volume).ToArray());
+
+                    // Apply pitch filter
                     pitch_filter.Apply(out data.pitches, data.O_Notes.Select(x => x.pitch).ToArray());
+
+                    // Apply onsets
+                    data.onsets = data.O_Notes.Select(x => x.onset).ToArray();
 
                     // Return our data
                     return data;

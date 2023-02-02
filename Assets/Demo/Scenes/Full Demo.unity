@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &180913487
+--- !u!1 &178284032
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,44 +131,45 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 180913489}
-  - component: {fileID: 180913488}
+  - component: {fileID: 178284034}
+  - component: {fileID: 178284033}
   m_Layer: 0
-  m_Name: Gen 2
+  m_Name: Analyser (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &180913488
+--- !u!114 &178284033
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 180913487}
+  m_GameObject: {fileID: 178284032}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1ccadef63d2c824ea294bf5ec9e9f78, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a18cf3e9b23ae640915b1c2cdbfe856, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mode: 1
-  DivScale: 0
-  prefab: {fileID: 3116760348182897991, guid: 3ac0235a740ea4a48b3e842f778b2388, type: 3}
---- !u!4 &180913489
+  settings:
+    SampleDepth: 256
+    LowestHeardFrequency: 20
+    fftWindow: 0
+--- !u!4 &178284034
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 180913487}
+  m_GameObject: {fileID: 178284032}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &237024994
 GameObject:
@@ -204,19 +205,49 @@ MonoBehaviour:
     input:
     - clip: {fileID: 8300000, guid: 063866b6c26f1ea4c884f293cff6b102, type: 3}
       FrequencyFilter:
-        AverageSplit: 2
-        range: 1
+        AverageSplit: 0
+        range: 0
       VolumeFilter:
-        AverageSplit: 16
-        range: 10
+        AverageSplit: 0
+        range: 0
+      PitchFilter:
+        AverageSplit: 0
+        range: 0
+    - clip: {fileID: 8300000, guid: 428280a9b46add743af3ae68e9d3e061, type: 3}
+      FrequencyFilter:
+        AverageSplit: 0
+        range: 0
+      VolumeFilter:
+        AverageSplit: 0
+        range: 0
+      PitchFilter:
+        AverageSplit: 0
+        range: 0
+    - clip: {fileID: 8300000, guid: 428280a9b46add743af3ae68e9d3e061, type: 3}
+      FrequencyFilter:
+        AverageSplit: 0
+        range: 0
+      VolumeFilter:
+        AverageSplit: 0
+        range: 0
+      PitchFilter:
+        AverageSplit: 0
+        range: 0
+    - clip: {fileID: 8300000, guid: 428280a9b46add743af3ae68e9d3e061, type: 3}
+      FrequencyFilter:
+        AverageSplit: 0
+        range: 0
+      VolumeFilter:
+        AverageSplit: 0
+        range: 0
       PitchFilter:
         AverageSplit: 0
         range: 0
     use:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1079620044}
-          m_TargetAssemblyTypeName: Generator, Assembly-CSharp
+        - m_Target: {fileID: 1365512167}
+          m_TargetAssemblyTypeName: Map, Assembly-CSharp
           m_MethodName: Generate
           m_Mode: 0
           m_Arguments:
@@ -227,8 +258,101 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-        - m_Target: {fileID: 180913488}
-          m_TargetAssemblyTypeName: Generator, Assembly-CSharp
+        - m_Target: {fileID: 1365512168}
+          m_TargetAssemblyTypeName: Loki.Signal.Analysis.Utilities.SongTracker, Assembly-CSharp
+          m_MethodName: Begin
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1582330232}
+          m_TargetAssemblyTypeName: Loki.Signal.Analysis.Utilities.Generator, Assembly-CSharp
+          m_MethodName: Generate
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - analyser: {fileID: 178284033}
+    input:
+    - clip: {fileID: 8300000, guid: 063866b6c26f1ea4c884f293cff6b102, type: 3}
+      FrequencyFilter:
+        AverageSplit: 6
+        range: 0
+      VolumeFilter:
+        AverageSplit: 12
+        range: 0
+      PitchFilter:
+        AverageSplit: 2
+        range: 0
+    - clip: {fileID: 8300000, guid: 428280a9b46add743af3ae68e9d3e061, type: 3}
+      FrequencyFilter:
+        AverageSplit: 0
+        range: 0
+      VolumeFilter:
+        AverageSplit: 0
+        range: 0
+      PitchFilter:
+        AverageSplit: 0
+        range: 0
+    - clip: {fileID: 8300000, guid: 428280a9b46add743af3ae68e9d3e061, type: 3}
+      FrequencyFilter:
+        AverageSplit: 0
+        range: 0
+      VolumeFilter:
+        AverageSplit: 0
+        range: 0
+      PitchFilter:
+        AverageSplit: 0
+        range: 0
+    - clip: {fileID: 8300000, guid: 428280a9b46add743af3ae68e9d3e061, type: 3}
+      FrequencyFilter:
+        AverageSplit: 0
+        range: 0
+      VolumeFilter:
+        AverageSplit: 0
+        range: 0
+      PitchFilter:
+        AverageSplit: 0
+        range: 0
+    use:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1365512167}
+          m_TargetAssemblyTypeName: Map, Assembly-CSharp
+          m_MethodName: Generate
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1365512168}
+          m_TargetAssemblyTypeName: Loki.Signal.Analysis.Utilities.SongTracker, Assembly-CSharp
+          m_MethodName: Begin
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1582330232}
+          m_TargetAssemblyTypeName: Loki.Signal.Analysis.Utilities.Generator, Assembly-CSharp
           m_MethodName: Generate
           m_Mode: 0
           m_Arguments:
@@ -252,9 +376,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1079620043
+--- !u!1 &1365512165
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -262,45 +386,106 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1079620045}
-  - component: {fileID: 1079620044}
+  - component: {fileID: 1365512166}
+  - component: {fileID: 1365512167}
+  - component: {fileID: 1365512168}
   m_Layer: 0
-  m_Name: Gen 1
+  m_Name: Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1079620044
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1079620043}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1ccadef63d2c824ea294bf5ec9e9f78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mode: 0
-  DivScale: 0
-  prefab: {fileID: 3116760348182897991, guid: 3ac0235a740ea4a48b3e842f778b2388, type: 3}
---- !u!4 &1079620045
+--- !u!4 &1365512166
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1079620043}
+  m_GameObject: {fileID: 1365512165}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1365512167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365512165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae1e2b20939ba2048bb56e2ea8c7ca02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tracker: {fileID: 1365512168}
+  floor: {fileID: 6693806118579770291, guid: 140e50619c4f3f249b8029048c4911d6, type: 3}
+  floor_mult: 10
+  jump: {fileID: 1008517543792343333, guid: 306456635ce008a469a71831672585cf, type: 3}
+--- !u!114 &1365512168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365512165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b64f92563ad840459a24bae9a8cec10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EndPos: {x: 0, y: 0, z: 0}
+--- !u!1 &1582330230
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1582330231}
+  - component: {fileID: 1582330232}
+  m_Layer: 0
+  m_Name: Visualiser
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1582330231
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1582330230}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1582330232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1582330230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1ccadef63d2c824ea294bf5ec9e9f78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mode: 2
+  prefab: {fileID: 584510836628186472, guid: d2db7f8201831e04fbd0ce5918768599, type: 3}
 --- !u!1 &1990378809
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,7 +497,7 @@ GameObject:
   - component: {fileID: 1990378811}
   - component: {fileID: 1990378810}
   m_Layer: 0
-  m_Name: Analyser
+  m_Name: Analyser (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
