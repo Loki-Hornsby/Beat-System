@@ -1,2 +1,2 @@
-# Beat-System (WIP)
-A beat (song analysis) system for unity.
+# Beat-System
+An audio analysis system for unity with an included demo.
