@@ -40,14 +40,14 @@ namespace Loki.Signal.Analysis.Demo {
             switch (state){
                 case GameStates.playing:
                     // if our player isn't grounded and their height is less than 0
-                    if (!player.grounded && player.gameObject.transform.position.y < 0f){
+                    if (!player.grounded && player.transform.position.y < 0f){
                         // Set game state to lost
                         state = GameStates.lost;
                     
                     // If our tracker is near the end
                     } else if (tracker.t >= 0.99f) {
                         // Set game state to won
-                        state = GameStates.won;
+                        //state = GameStates.won;
                     }
 
                     break;
@@ -62,7 +62,7 @@ namespace Loki.Signal.Analysis.Demo {
 
                     break;
                 case GameStates.won:
-                    Debug.Log("WOOHOO!");
+                    //Debug.Log("WOOHOO!");
 
                     break;
             }

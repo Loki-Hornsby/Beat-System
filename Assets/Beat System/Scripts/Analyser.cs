@@ -40,25 +40,8 @@ namespace Loki.Signal.Analysis {
             public PossibleSampleDepths SampleDepth;
 
             // ------------------- Hearing ------------------- \\
-            public enum PossibleLowestHeardFrequencies {
-                _15 = 15,
-                _20 = 20,
-                _25 = 25,
-                _30 = 30,
-                _35 = 35,
-                _40 = 40,
-                _45 = 45,
-                _50 = 50,
-                _55 = 55,
-                _60 = 60,
-                _65 = 65,
-                _70 = 70,
-                _75 = 75,
-                _80 = 80
-            };
-
             [Header("Hearing")]
-            public PossibleLowestHeardFrequencies LowestHeardFrequency;
+            public float LowestHeardFrequency;
 
             // ------------------- FFT Window ------------------- \\
             [Header("FFT")]
@@ -196,10 +179,11 @@ namespace Loki.Signal.Analysis {
             public Notes.Note[] O_Notes;
 
             // Generic data
-            public float[] frequencies;
-            public float[] volumes;
-            public float[] pitches;
-            public bool[] onsets;
+            public float[] frequencies; // array of frequencies
+            public float[] volumes; // array of magnitudes
+            public float[] pitches; // array of pitches
+            public bool[] onsets; // array of onsets
+            public float[] times; // array of times
 
             // Predefined generic data
             public AudioClip Clip;          // The Song (AudioClip)
@@ -385,10 +369,11 @@ namespace Loki.Signal.Analysis {
             // https://stackoverflow.com/questions/16875751/musical-note-duration
 
             public class Note { 
-                public float pitch;
-                public float frequency;
-                public float volume; // Also known as magnitude
-                public bool onset;
+                public float pitch; // The pitch of this note.
+                public float frequency; // The frequency (HZ) of this note.
+                public float volume; // Also known as magnitude.
+                public bool onset; // Is this a true note or an artefact of analysis?
+                public float time; // The current timestamp of this note in relation to our audio clip.
 
                 /// <summary>
                 /// Get the pitch from a frequency
@@ -479,7 +464,7 @@ namespace Loki.Signal.Analysis {
             /// <summary>
             /// Create an array of volumes
             /// </summary>
-            public Notes(out Notes.Note[] Output, float[][] Input, float SampleDepth, float Peak, float LowestHeardFrequency){
+            public Notes(out Notes.Note[] Output, float[][] Input, float SampleDepth, float Peak, float LowestHeardFrequency, float length){
                 // Initialize our array
                 Output = new Notes.Note[Input.Length];
 
@@ -492,6 +477,9 @@ namespace Loki.Signal.Analysis {
                     if (i > 0){
                         Output[i].onset = (Output[i].pitch > Output[i - 1].pitch);
                     }
+
+                    // Apply times (our current index divided by the length of our output multiplied by the length of our song)
+                    Output[i].time = (i / (float) Output.Length) * length; 
                 }
             }
         }
@@ -531,7 +519,8 @@ namespace Loki.Signal.Analysis {
                         data.O_Wave,
                         (int) settings.SampleDepth,
                         data.Peak,
-                        (int) settings.LowestHeardFrequency
+                        (int) settings.LowestHeardFrequency,
+                        data.Length
                     );
 
                     // Apply frequency filter
@@ -545,6 +534,9 @@ namespace Loki.Signal.Analysis {
 
                     // Apply onsets
                     data.onsets = data.O_Notes.Select(x => x.onset).ToArray();
+
+                    // Apply times
+                    data.times = data.O_Notes.Select(x => x.time).ToArray();
 
                     // Return our data
                     return data;

@@ -40,7 +40,7 @@ namespace Loki.Signal.Analysis.Demo {
                 // If the current item is an onset
                 if (onsets[i]) {
                     // Create our object
-                    obj = Instantiate(jump, new Vector3(div * i, 0f, 0f), Quaternion.identity);
+                    obj = Instantiate(jump, new Vector3(div * i, jump.transform.position.y, jump.transform.position.z), Quaternion.identity);
 
                     // Parent it to our map
                     obj.transform.parent = map.transform;
