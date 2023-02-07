@@ -1,5 +1,5 @@
 /// <summary>
-/// Copyright 2022, Loki Alexander Button Hornsby (Loki Hornsby), All rights reserved.
+/// Made by Loki Alexander Button Hornsby
 /// Licensed under the BSD 3-Clause "New" or "Revised" License
 /// </summary>
 
@@ -11,6 +11,8 @@ using System;
 using Loki.Signal.Analysis.Utilities;
 
 namespace Loki.Signal.Analysis.Demo {
+    [RequireComponent(typeof(Credits))]
+    [RequireComponent(typeof(Narrator))]
     public class Game : MonoBehaviour {
         public enum GameStates {
             playing,
@@ -24,19 +26,23 @@ namespace Loki.Signal.Analysis.Demo {
         // Refs
         public Player player;
         public SongTracker tracker;
+        public Audio audio;
+        public Narrator narrator;
+        public Maps map;
 
         /// <summary>
         /// Generic setup
         /// </summary>
         void Start(){
-            // Set our start to "playing" to begin with
-            state = GameStates.playing;
+            // Set our start to "won" to begin with
+            state = GameStates.won;
         }
         
         /// <summary>
         /// Update game state
         /// </summary>
         void Update(){
+            // Update things dependent on our current state
             switch (state){
                 case GameStates.playing:
                     // if our player isn't grounded and their height is less than 0
@@ -47,7 +53,7 @@ namespace Loki.Signal.Analysis.Demo {
                     // If our tracker is near the end
                     } else if (tracker.t >= 0.99f) {
                         // Set game state to won
-                        //state = GameStates.won;
+                        state = GameStates.won;
                     }
 
                     break;
@@ -58,11 +64,21 @@ namespace Loki.Signal.Analysis.Demo {
                     // Destroy the game object this script is attached to
                     Destroy(this.gameObject);
 
-                    Debug.Log("BOOOOOOOOO!");
+                    //Debug.Log("BOOOOOOOOO!");
 
                     break;
                 case GameStates.won:
-                    //Debug.Log("WOOHOO!");
+                    // If our audio source isn't playing
+                    if (!audio.source.isPlaying) {
+                        // If our narrator was able to trigger
+                        if (narrator.Trigger()){
+                            // Goto our next map
+                            map.Next();
+
+                            // Revert back to the playing state
+                            state = GameStates.playing;
+                        }
+                    }
 
                     break;
             }

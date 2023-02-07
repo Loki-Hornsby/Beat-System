@@ -1,5 +1,5 @@
 /// <summary>
-/// Copyright 2022, Loki Alexander Button Hornsby (Loki Hornsby), All rights reserved.
+/// Made by Loki Alexander Button Hornsby
 /// Licensed under the BSD 3-Clause "New" or "Revised" License
 /// </summary>
 
@@ -11,7 +11,24 @@ using System;
 using Loki.Signal.Analysis;
 
 namespace Loki.Signal.Analysis.Demo {
-    public class Map : MonoBehaviour {
+    public class Maps : MonoBehaviour {
+        public class Map {
+            public GameObject Obj; // Map object
+            public float Length; // Length of the map
+
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            public Map(GameObject _Obj, float _Length){
+                // Define and disable our object
+                Obj = _Obj;
+                Obj.SetActive(false);
+
+                // Define our map length
+                Length = _Length;
+            }
+        }
+
         [Header("Tracker")]
         public Loki.Signal.Analysis.Utilities.SongTracker tracker;
 
@@ -20,10 +37,10 @@ namespace Loki.Signal.Analysis.Demo {
         public GameObject jump;
 
         // Stored maps
-        List<GameObject> maps = new List<GameObject>();
+        List<Maps.Map> maps = new List<Maps.Map>();
 
-        // Map length
-        [System.NonSerialized] public float length;
+        // Selected map
+        int selected;
 
         /// <summary>
         /// Create jumps on the floor
@@ -52,25 +69,43 @@ namespace Loki.Signal.Analysis.Demo {
         /// Generate the parts of our map
         /// </summary>
         public void Generate(Analyser.Data data){
-            // Create our map game object and disable it
-            GameObject map = new GameObject(data.Clip.name);
-            //map.SetActive(false);
-
+            // Define our map parent
+            Maps.Map map = new Maps.Map(
+                new GameObject(data.Clip.name), 
+                data.Length * mult
+            );
+            
             // Add it to our list
             maps.Add(map);
-            
-            // Calculate length of song using multiplier
-            length = data.Length * mult;
-
-            // Set our trackers target to be the end of the map
-            tracker.EndPos = new Vector3(length, 0f, 0f);
 
             // Create our "jumps" (Hurdles)
             CreateJumps(
-                ref map,
-                length, 
+                ref map.Obj,
+                map.Length, 
                 data.onsets
             );
+        }
+
+        /// <summary>
+        /// Goto the next map
+        /// </summary>
+        public void Next(){
+            // Disable our current map
+            maps[selected].Obj.SetActive(false);
+
+            // Increment counter
+            selected++;
+
+            // Reset counter if needed
+            if (selected > maps.Count - 1){
+                selected = 0;
+            }
+
+            // Select and enable our new map
+            maps[selected].Obj.SetActive(true);
+
+            // Set our trackers end position
+            tracker.EndPos = new Vector3(maps[selected].Length, 0f, 0f);
         }
     }
 }

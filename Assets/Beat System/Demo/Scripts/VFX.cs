@@ -1,5 +1,5 @@
 /// <summary>
-/// Copyright 2022, Loki Alexander Button Hornsby (Loki Hornsby), All rights reserved.
+/// Made by Loki Alexander Button Hornsby
 /// Licensed under the BSD 3-Clause "New" or "Revised" License
 /// </summary>
 
@@ -9,9 +9,10 @@ using UnityEngine;
 using System.Linq;
 
 namespace Loki.Signal.Analysis.Demo {
+    [RequireComponent(typeof(Camera))]
     public class VFX : MonoBehaviour {
         // Camera reference
-        public Camera camera;
+        Camera camera;
 
         // Target FOV
         float targetFOV;
@@ -20,6 +21,7 @@ namespace Loki.Signal.Analysis.Demo {
         /// Generic setup
         /// </summary>
         void Awake(){
+            camera = GetComponent<Camera>();
             camera.orthographic = false;
         }
 
@@ -30,16 +32,16 @@ namespace Loki.Signal.Analysis.Demo {
             // If our current index is an onset
             if (data.onsets[index]){
                 // "Pulse" the camera
-                targetFOV = 200f;
+                targetFOV = 100f;
             } else {
                 // Assign a new FOV target using our currently indexed magnitude as a percentage
-                targetFOV = (data.pitches[index] / data.pitches.Max()) * 60f;
+                targetFOV = 60f + (data.pitches[index] / data.pitches.Max());
             }
         }
 
         void Update(){
             // Lerp our camera's field of view to our target FOV
-            camera.fieldOfView = Mathf.Lerp(camera.fieldOfView, targetFOV, Time.deltaTime);
+            //camera.fieldOfView = Mathf.Lerp(camera.fieldOfView, targetFOV, Time.deltaTime);
         }
     }
 }

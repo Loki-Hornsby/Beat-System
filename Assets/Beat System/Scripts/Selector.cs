@@ -1,5 +1,5 @@
 /// <summary>
-/// Copyright 2022, Loki Alexander Button Hornsby (Loki Hornsby), All rights reserved.
+/// Made by Loki Alexander Button Hornsby
 /// Licensed under the BSD 3-Clause "New" or "Revised" License
 /// </summary>
 
@@ -66,8 +66,6 @@ namespace Loki.Signal.Analysis {
         /// Setup
         /// </summary>
         void Awake(){
-            Debug.LogWarning("Music by QubeSounds from Pixabay");
-
             // Only allow one instance of this object
             if (Instance == null){
                 Instance = this;

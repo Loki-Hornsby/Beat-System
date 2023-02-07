@@ -123,51 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &98320469
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 98320470}
-  - component: {fileID: 98320471}
-  m_Layer: 0
-  m_Name: VFX
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &98320470
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 98320469}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &98320471
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 98320469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e47f99add26d9fd4f9998ce3d652ff08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  camera: {fileID: 557752405}
 --- !u!1 &557752403
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,6 +134,7 @@ GameObject:
   - component: {fileID: 557752404}
   - component: {fileID: 557752405}
   - component: {fileID: 557752406}
+  - component: {fileID: 557752407}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -194,7 +150,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 557752403}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: -5}
+  m_LocalPosition: {x: 0, y: 2.75, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -252,6 +208,18 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 557752403}
   m_Enabled: 1
+--- !u!114 &557752407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 557752403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e47f99add26d9fd4f9998ce3d652ff08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &714616533
 GameObject:
   m_ObjectHideFlags: 0
@@ -381,6 +349,26 @@ MonoBehaviour:
   items:
   - analyser: {fileID: 1285953428}
     input:
+    - clip: {fileID: 8300000, guid: 924ad67c9a2f69041b67851897d5dcb3, type: 3}
+      FrequencyFilter:
+        AverageSplit: 0
+        range: 0
+      VolumeFilter:
+        AverageSplit: 0
+        range: 0
+      PitchFilter:
+        AverageSplit: 0
+        range: 0
+    - clip: {fileID: 8300000, guid: d0b038ea81e8c3947ac408ed4acb7ab0, type: 3}
+      FrequencyFilter:
+        AverageSplit: 0
+        range: 0
+      VolumeFilter:
+        AverageSplit: 0
+        range: 0
+      PitchFilter:
+        AverageSplit: 0
+        range: 0
     - clip: {fileID: 8300000, guid: 063866b6c26f1ea4c884f293cff6b102, type: 3}
       FrequencyFilter:
         AverageSplit: 0
@@ -394,34 +382,22 @@ MonoBehaviour:
     use:
       m_PersistentCalls:
         m_Calls:
+        - m_Target: {fileID: 1777362176}
+          m_TargetAssemblyTypeName: Loki.Signal.Analysis.Audio, Assembly-CSharp
+          m_MethodName: PassData
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
         - m_Target: {fileID: 1701092910}
-          m_TargetAssemblyTypeName: Map, Assembly-CSharp
+          m_TargetAssemblyTypeName: Loki.Signal.Analysis.Demo.Map, Assembly-CSharp
           m_MethodName: Generate
           m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 1023467839}
-          m_TargetAssemblyTypeName: Loki.Signal.Analysis.Utilities.SongTracker, Assembly-CSharp
-          m_MethodName: Begin
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 1818881364}
-          m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-          m_MethodName: Play
-          m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -438,7 +414,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 959753686}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -41.500015, y: -0.5, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -477,8 +453,8 @@ Transform:
   - {fileID: 1922260867}
   - {fileID: 557752404}
   - {fileID: 714616537}
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_Father: {fileID: 1525326412}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &1023467839
 MonoBehaviour:
@@ -492,10 +468,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b64f92563ad840459a24bae9a8cec10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audio: {fileID: 1777362176}
   use:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 98320471}
+      - m_Target: {fileID: 557752407}
         m_TargetAssemblyTypeName: Loki.Signal.Analysis.Demo.VFX, Assembly-CSharp
         m_MethodName: IndexChange
         m_Mode: 0
@@ -532,7 +509,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1285953426}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -41.500015, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -565,6 +542,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1525326412}
   - component: {fileID: 1525326413}
+  - component: {fileID: 1525326414}
+  - component: {fileID: 1525326415}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -583,9 +562,11 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1701092909}
+  - {fileID: 1023467837}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1525326413
 MonoBehaviour:
@@ -602,6 +583,36 @@ MonoBehaviour:
   state: 0
   player: {fileID: 1922260872}
   tracker: {fileID: 1023467839}
+  audio: {fileID: 1777362176}
+  narrator: {fileID: 1525326415}
+  map: {fileID: 1701092910}
+--- !u!114 &1525326414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525326411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d21713f4f1eca943a293a394762985c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1525326415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525326411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4440e467c6afed54e8c5d29fbaee43f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audio: {fileID: 1777362176}
+  tracker: {fileID: 1023467839}
+  clip_countdown: {fileID: 8300000, guid: d0b038ea81e8c3947ac408ed4acb7ab0, type: 3}
 --- !u!1 &1701092908
 GameObject:
   m_ObjectHideFlags: 0
@@ -631,8 +642,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_Father: {fileID: 1525326412}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1701092910
 MonoBehaviour:
@@ -658,8 +669,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1777362175}
+  - component: {fileID: 1777362177}
+  - component: {fileID: 1777362176}
   m_Layer: 0
-  m_Name: Analysis
+  m_Name: Audio
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -673,44 +686,39 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1777362174}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 41.500015, y: 0.5, z: 0.00000047683716}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1285953427}
   - {fileID: 959753688}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1818881363
-GameObject:
+--- !u!114 &1777362176
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1818881365}
-  - component: {fileID: 1818881364}
-  m_Layer: 0
-  m_Name: Audio
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!82 &1818881364
+  m_GameObject: {fileID: 1777362174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1afb69dbd4e2b3146afd6a30d08f9c0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!82 &1777362177
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1818881363}
+  m_GameObject: {fileID: 1777362174}
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 063866b6c26f1ea4c884f293cff6b102, type: 3}
-  m_PlayOnAwake: 0
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -718,9 +726,9 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 5
-  MinDistance: 0
-  MaxDistance: 5000
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -770,7 +778,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -795,21 +803,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!4 &1818881365
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1818881363}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1922260866
 GameObject:
   m_ObjectHideFlags: 0
@@ -839,7 +832,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1922260866}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 1.5, z: 0}
+  m_LocalPosition: {x: -0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -927,6 +920,7 @@ MonoBehaviour:
   select:
     serializedVersion: 2
     m_Bits: 1
+  tracker: {fileID: 1023467837}
 --- !u!135 &1922260873
 SphereCollider:
   m_ObjectHideFlags: 0
